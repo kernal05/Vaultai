@@ -1,0 +1,37 @@
+:root {
+  --indigo: #1b2a4a;
+  --indigo-deep: #101a30;
+  --marigold: #e8a23d;
+  --turmeric: #f2c14e;
+  --maroon: #7a2438;
+  --paper: #efe6d3;
+  --ink: #1b1712;
+  --ink-soft: #4a4339;
+
+  --font-display: "Fraunces", serif;
+  --font-ui: "Inter", system-ui, sans-serif;
+}
+
+* { box-sizing: border-box; }
+
+html, body, #root {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  font-family: var(--font-ui);
+  background: var(--indigo-deep);
+  color: var(--paper);
+  -webkit-font-smoothing: antialiased;
+}
+
+button {
+  font-family: inherit;
+  cursor: pointer;
+}
+
+::selection {
+  background: var(--marigold);
+  color: var(--ink);
+}
