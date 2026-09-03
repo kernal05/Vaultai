@@ -86,9 +86,12 @@ pipeline {
             steps {
                 // Secrets never touch disk in the repo or in git — pulled from
                 // Jenkins' folder-scoped credential store and written fresh to
-                // .env on every deploy, so Jenkins stays the single source of
-                // truth for rotation instead of a hand-edited server file.
+                // .env on every deploy. The deploy user also logs into GHCR
+                // itself here, so pulls work even if the image isn't already
+                // cached in the local Docker daemon (e.g. after a prune, or
+                // if deploy ever moves to a separate host from Jenkins).
                 withCredentials([
+                    usernamePassword(credentialsId: 'vaultai-ghcr-creds', usernameVariable: 'GHCR_USER', passwordVariable: 'GHCR_TOKEN'),
                     string(credentialsId: 'vaultai-postgres-password', variable: 'PG_PASS'),
                     string(credentialsId: 'vaultai-grafana-password', variable: 'GRAFANA_PASS')
                 ]) {
@@ -109,6 +112,7 @@ POSTGRES_PASSWORD=${PG_PASS}
 GRAFANA_ADMIN_PASSWORD=${GRAFANA_PASS}
 ENVEOF
                             chmod 600 .env &&
+                            echo ${GHCR_TOKEN} | docker login ghcr.io -u ${GHCR_USER} --password-stdin &&
                             docker compose --env-file .env pull &&
                             docker compose --env-file .env up -d &&
                             docker compose ps
