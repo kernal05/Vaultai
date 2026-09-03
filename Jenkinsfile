@@ -60,8 +60,6 @@ pipeline {
                   trivy image --exit-code 0 --severity HIGH,CRITICAL ${REGISTRY}/vaultai-frontend:${IMAGE_TAG} || true
                   trivy image --exit-code 0 --severity HIGH,CRITICAL ${REGISTRY}/vaultai-api:${IMAGE_TAG} || true
                 """
-                // start with --exit-code 0 (report only) while you baseline;
-                // flip to 1 once you've triaged existing findings, to actually gate the pipeline.
             }
         }
 
@@ -86,19 +84,37 @@ pipeline {
         stage('Deploy') {
             when { branch 'main' }
             steps {
-                // Deploy over SSH as the dedicated 'vaultai' user — never root,
-                // never the shared password. Uses the key created by
-                // scripts/04-create-service-user.sh, stored as a Jenkins
-                // credential scoped to this folder only.
-                sshagent(credentials: ['vaultai-deploy-key']) {
-                    sh """
-                      ssh -o StrictHostKeyChecking=accept-new ${DEPLOY_USER}@${DEPLOY_HOST} '
-                        cd ${COMPOSE_DIR} &&
-                        IMAGE_TAG=${IMAGE_TAG} docker compose --env-file .env pull &&
-                        IMAGE_TAG=${IMAGE_TAG} docker compose --env-file .env up -d &&
-                        docker compose ps
-                      '
-                    """
+                // Secrets never touch disk in the repo or in git — pulled from
+                // Jenkins' folder-scoped credential store and written fresh to
+                // .env on every deploy, so Jenkins stays the single source of
+                // truth for rotation instead of a hand-edited server file.
+                withCredentials([
+                    string(credentialsId: 'vaultai-postgres-password', variable: 'PG_PASS'),
+                    string(credentialsId: 'vaultai-grafana-password', variable: 'GRAFANA_PASS')
+                ]) {
+                    sshagent(credentials: ['vaultai-deploy-key']) {
+                        sh """
+                          ssh -o StrictHostKeyChecking=accept-new ${DEPLOY_USER}@${DEPLOY_HOST} '
+                            cd ${COMPOSE_DIR} &&
+                            cat > .env <<ENVEOF
+ENV=staging
+IMAGE_TAG=${IMAGE_TAG}
+LOG_LEVEL=info
+FRONTEND_PORT=8081
+API_PORT=8082
+PROMETHEUS_PORT=9091
+GRAFANA_PORT=3001
+API_PUBLIC_URL=http://103.192.198.240:8082
+POSTGRES_PASSWORD=${PG_PASS}
+GRAFANA_ADMIN_PASSWORD=${GRAFANA_PASS}
+ENVEOF
+                            chmod 600 .env &&
+                            docker compose --env-file .env pull &&
+                            docker compose --env-file .env up -d &&
+                            docker compose ps
+                          '
+                        """
+                    }
                 }
             }
         }
