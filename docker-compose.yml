@@ -29,7 +29,7 @@ services:
     build:
       context: .
       dockerfile: app/Dockerfile
-    image: vaultai/frontend:${IMAGE_TAG:-local}
+    image: ghcr.io/kernal05/vaultai-frontend:${IMAGE_TAG:-local}
     container_name: vaultai-frontend
     restart: unless-stopped
     networks: [vaultai_net]
@@ -60,7 +60,7 @@ services:
     build:
       context: ./api
       dockerfile: Dockerfile
-    image: vaultai/api:${IMAGE_TAG:-local}
+    image: ghcr.io/kernal05/vaultai-api:${IMAGE_TAG:-local}
     container_name: vaultai-api
     restart: unless-stopped
     networks: [vaultai_net]
