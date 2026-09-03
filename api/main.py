@@ -3,6 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from prometheus_client import Counter, make_asgi_app
 import logging
 import os
+from anthropic import Anthropic
 
 logging.basicConfig(
     level=os.getenv("LOG_LEVEL", "info").upper(),
@@ -37,13 +38,34 @@ def readyz():
     return {"status": "ready"}
 
 
+anthropic_client = Anthropic(api_key=os.getenv("ANTHROPIC_API_KEY"))
+
+
 @app.post("/api/v1/caption")
 def generate_caption(payload: dict):
-    """
-    Placeholder for AI caption generation.
-    Wire this to the Anthropic API (or whichever provider) next.
-    """
     REQUEST_COUNT.labels(endpoint="caption").inc()
     topic = payload.get("topic", "")
     log.info(f"caption request topic={topic!r}")
-    return {"caption": f"[stub] generated caption for: {topic}"}
+
+    if not topic:
+        return {"caption": ""}
+
+    try:
+        response = anthropic_client.messages.create(
+            model="claude-haiku-4-5-20251001",
+            max_tokens=100,
+            messages=[{
+                "role": "user",
+                "content": (
+                    f"Write one short, warm caption (under 20 words) for a "
+                    f"'{topic}' status poster someone will share with friends "
+                    f"or family. Return only the caption text, nothing else."
+                ),
+            }],
+        )
+        caption = response.content[0].text.strip()
+    except Exception as e:
+        log.error(f"caption generation failed: {e}")
+        caption = f"Wishing you a wonderful {topic.lower()}!"
+
+    return {"caption": caption}

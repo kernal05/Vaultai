@@ -93,7 +93,8 @@ pipeline {
                 withCredentials([
                     usernamePassword(credentialsId: 'vaultai-ghcr-creds', usernameVariable: 'GHCR_USER', passwordVariable: 'GHCR_TOKEN'),
                     string(credentialsId: 'vaultai-postgres-password', variable: 'PG_PASS'),
-                    string(credentialsId: 'vaultai-grafana-password', variable: 'GRAFANA_PASS')
+                    string(credentialsId: 'vaultai-grafana-password', variable: 'GRAFANA_PASS'),
+                    string(credentialsId: 'vaultai-anthropic-key', variable: 'ANTHROPIC_KEY')
                 ]) {
                     sshagent(credentials: ['vaultai-deploy-key']) {
                         sh """
@@ -110,6 +111,7 @@ GRAFANA_PORT=3001
 API_PUBLIC_URL=http://103.192.198.240:7101/api
 POSTGRES_PASSWORD=${PG_PASS}
 GRAFANA_ADMIN_PASSWORD=${GRAFANA_PASS}
+ANTHROPIC_API_KEY=${ANTHROPIC_KEY}
 ENVEOF
                             chmod 600 .env &&
                             echo ${GHCR_TOKEN} | docker login ghcr.io -u ${GHCR_USER} --password-stdin &&
