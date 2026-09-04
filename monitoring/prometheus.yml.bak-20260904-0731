@@ -2,9 +2,6 @@ global:
   scrape_interval: 15s
   evaluation_interval: 15s
 
-rule_files:
-  - "alert_rules.yml"
-
 scrape_configs:
   - job_name: "vaultai-api"
     metrics_path: /metrics
@@ -14,7 +11,3 @@ scrape_configs:
   - job_name: "vaultai-prometheus-self"
     static_configs:
       - targets: ["localhost:9090"]
-
-  - job_name: "vaultai-cadvisor"
-    static_configs:
-      - targets: ["vaultai-cadvisor:8080"]
