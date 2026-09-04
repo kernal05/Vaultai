@@ -1,9 +1,8 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import { renderPoster } from "./canvasRenderer.js";
+import { saveRecent } from "./recentCreations.js";
 import "./BrowseView.css";
 
-// Relative luminance -> pick readable text color per card, since template
-// gradients range from very light (business b3) to very dark (business b1/b2).
 function luminance(hex) {
   const c = hex.replace("#", "");
   const [r, g, b] = [0, 2, 4].map((i) => parseInt(c.substr(i, 2), 16) / 255);
@@ -16,9 +15,6 @@ function cardTextColor(template) {
   return avg > 0.4 ? "#1b1712" : "#f5efe2";
 }
 
-// Clipboard/Share APIs require a secure context (HTTPS or localhost).
-// This app is currently served over plain HTTP on an IP, so both fall back
-// to the older execCommand method, which still works without HTTPS.
 async function copyText(text) {
   if (navigator.clipboard && window.isSecureContext) {
     try {
@@ -45,9 +41,9 @@ async function copyText(text) {
   return ok;
 }
 
-export default function BrowseView({ categories }) {
-  const [categoryId, setCategoryId] = useState(categories[0].id);
-  const category = categories.find((c) => c.id === categoryId);
+export default function BrowseView({ categories, initialCategoryId }) {
+  const [categoryId, setCategoryId] = useState(initialCategoryId || categories[0].id);
+  const category = categories.find((c) => c.id === categoryId) || categories[0];
   const [quotes, setQuotes] = useState(category.quotes);
   const [loading, setLoading] = useState(false);
   const [copiedIndex, setCopiedIndex] = useState(null);
@@ -94,11 +90,13 @@ export default function BrowseView({ categories }) {
   function handleDownload(text, idx) {
     const canvas = hiddenCanvasRef.current;
     const t = category.templates[idx % category.templates.length];
-    renderPoster(canvas, { template: t, name: "", quote: text, photoImg: null });
+    renderPoster(canvas, { template: t, name: "", quote: text, photoImg: null, bgMode: "circle" });
+    const dataUrl = canvas.toDataURL("image/png");
     const link = document.createElement("a");
     link.download = `vaultai-${category.id}-${idx + 1}.png`;
-    link.href = canvas.toDataURL("image/png");
+    link.href = dataUrl;
     link.click();
+    saveRecent(dataUrl, category.label);
   }
 
   async function handleShare(text) {
@@ -107,7 +105,7 @@ export default function BrowseView({ categories }) {
         await navigator.share({ text, title: "VaultAI" });
         return;
       } catch (err) {
-        return; // user cancelled — no-op
+        return;
       }
     }
     const ok = await copyText(text);
@@ -141,16 +139,11 @@ export default function BrowseView({ categories }) {
               <article
                 key={idx}
                 className="quote-card"
-                style={{
-                  background: `linear-gradient(135deg, ${t.from}, ${t.to})`,
-                  "--card-fg": fg,
-                }}
+                style={{ background: `linear-gradient(135deg, ${t.from}, ${t.to})`, "--card-fg": fg }}
               >
                 <p className="quote-text">{q}</p>
                 <div className="quote-actions">
-                  <button onClick={() => handleCopy(q, idx)}>
-                    {copiedIndex === idx ? "Copied" : "Copy"}
-                  </button>
+                  <button onClick={() => handleCopy(q, idx)}>{copiedIndex === idx ? "Copied" : "Copy"}</button>
                   <button onClick={() => handleDownload(q, idx)}>Download</button>
                   <button onClick={() => handleShare(q)}>Share</button>
                 </div>

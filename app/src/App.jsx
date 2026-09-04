@@ -2,16 +2,24 @@ import React, { useEffect, useRef, useState, useCallback } from "react";
 import { CATEGORIES } from "./templates.js";
 import { renderPoster } from "./canvasRenderer.js";
 import BrowseView from "./BrowseView.jsx";
+import Dashboard from "./Dashboard.jsx";
+import { saveRecent } from "./recentCreations.js";
 import "./App.css";
 
 export default function App() {
-  const [view, setView] = useState("create");
+  const [view, setView] = useState("home");
+  const [browseCategoryId, setBrowseCategoryId] = useState(undefined);
   const [theme, setTheme] = useState(() => localStorage.getItem("vaultai-theme") || "light");
 
   useEffect(() => {
     document.documentElement.dataset.theme = theme;
     localStorage.setItem("vaultai-theme", theme);
   }, [theme]);
+
+  function handleNavigate(nextView, categoryId) {
+    setView(nextView);
+    if (nextView === "browse") setBrowseCategoryId(categoryId);
+  }
 
   const [categoryId, setCategoryId] = useState(CATEGORIES[0].id);
   const category = CATEGORIES.find((c) => c.id === categoryId);
@@ -20,6 +28,7 @@ export default function App() {
   const [name, setName] = useState("");
   const [quote, setQuote] = useState(category.quotes[0]);
   const [photoImg, setPhotoImg] = useState(null);
+  const [bgMode, setBgMode] = useState("circle");
   const [aiLoading, setAiLoading] = useState(false);
 
   const canvasRef = useRef(null);
@@ -35,8 +44,8 @@ export default function App() {
 
   const draw = useCallback(() => {
     if (!canvasRef.current) return;
-    renderPoster(canvasRef.current, { template, name, quote, photoImg });
-  }, [template, name, quote, photoImg]);
+    renderPoster(canvasRef.current, { template, name, quote, photoImg, bgMode });
+  }, [template, name, quote, photoImg, bgMode]);
 
   useEffect(() => {
     draw();
@@ -52,10 +61,12 @@ export default function App() {
 
   function handleDownload() {
     const canvas = canvasRef.current;
+    const dataUrl = canvas.toDataURL("image/png");
     const link = document.createElement("a");
     link.download = "vaultai-poster.png";
-    link.href = canvas.toDataURL("image/png");
+    link.href = dataUrl;
     link.click();
+    saveRecent(dataUrl, category.label);
   }
 
   async function handleAiCaption() {
@@ -82,16 +93,13 @@ export default function App() {
         <span className="top-bar-brand">VaultAI</span>
 
         <nav className="view-tabs">
-          <button
-            className={`view-tab ${view === "create" ? "active" : ""}`}
-            onClick={() => setView("create")}
-          >
+          <button className={`view-tab ${view === "home" ? "active" : ""}`} onClick={() => setView("home")}>
+            Home
+          </button>
+          <button className={`view-tab ${view === "create" ? "active" : ""}`} onClick={() => setView("create")}>
             Create
           </button>
-          <button
-            className={`view-tab ${view === "browse" ? "active" : ""}`}
-            onClick={() => setView("browse")}
-          >
+          <button className={`view-tab ${view === "browse" ? "active" : ""}`} onClick={() => setView("browse")}>
             Browse
           </button>
         </nav>
@@ -105,7 +113,9 @@ export default function App() {
         </button>
       </header>
 
-      {view === "create" ? (
+      {view === "home" && <Dashboard categories={CATEGORIES} onNavigate={handleNavigate} />}
+
+      {view === "create" && (
         <div className="studio">
           <aside className="rail">
             <nav>
@@ -135,9 +145,7 @@ export default function App() {
                   <button
                     key={t.id}
                     className={`swatch ${t.id === templateId ? "active" : ""}`}
-                    style={{
-                      background: `linear-gradient(135deg, ${t.from}, ${t.to})`,
-                    }}
+                    style={{ background: `linear-gradient(135deg, ${t.from}, ${t.to})` }}
                     onClick={() => setTemplateId(t.id)}
                     aria-label={`Template ${t.id}`}
                   />
@@ -150,13 +158,18 @@ export default function App() {
               <button className="btn-secondary" onClick={() => fileInputRef.current?.click()}>
                 {photoImg ? "Change photo" : "Upload photo"}
               </button>
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept="image/*"
-                hidden
-                onChange={handlePhoto}
-              />
+              <input ref={fileInputRef} type="file" accept="image/*" hidden onChange={handlePhoto} />
+
+              {photoImg && (
+                <div className="bg-mode-toggle">
+                  <button className={bgMode === "circle" ? "active" : ""} onClick={() => setBgMode("circle")}>
+                    Framed photo
+                  </button>
+                  <button className={bgMode === "photo" ? "active" : ""} onClick={() => setBgMode("photo")}>
+                    Full background
+                  </button>
+                </div>
+              )}
             </section>
 
             <section className="panel-section">
@@ -187,8 +200,10 @@ export default function App() {
             </button>
           </aside>
         </div>
-      ) : (
-        <BrowseView categories={CATEGORIES} />
+      )}
+
+      {view === "browse" && (
+        <BrowseView key={browseCategoryId || "default"} categories={CATEGORIES} initialCategoryId={browseCategoryId} />
       )}
     </div>
   );

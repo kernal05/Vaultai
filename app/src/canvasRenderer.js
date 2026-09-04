@@ -85,29 +85,58 @@ function wrapText(ctx, text, x, y, maxWidth, lineHeight) {
   return lines.length;
 }
 
-export function renderPoster(canvas, { template, name, quote, photoImg }) {
-  const ctx = canvas.getContext("2d");
-  canvas.width = W;
-  canvas.height = H;
-
-  // Background gradient
+function drawGradientBackground(ctx, template) {
   const grad = ctx.createLinearGradient(0, 0, W, H);
   grad.addColorStop(0, template.from);
   grad.addColorStop(1, template.to);
   ctx.fillStyle = grad;
   ctx.fillRect(0, 0, W, H);
-
   drawMotif(ctx, template.motif, "#EFE6D3");
+}
 
-  // Bottom scrim so text stays legible over any motif
-  const scrim = ctx.createLinearGradient(0, H * 0.55, 0, H);
+function drawPhotoBackground(ctx, template, photoImg) {
+  // Cover-fit the photo across the whole canvas
+  const scale = Math.max(W / photoImg.width, H / photoImg.height);
+  const iw = photoImg.width * scale;
+  const ih = photoImg.height * scale;
+  ctx.drawImage(photoImg, (W - iw) / 2, (H - ih) / 2, iw, ih);
+
+  // Duotone-style color overlay so the photo matches the chosen template
+  const grad = ctx.createLinearGradient(0, 0, W, H);
+  grad.addColorStop(0, template.from);
+  grad.addColorStop(1, template.to);
+  ctx.save();
+  ctx.globalAlpha = 0.4;
+  ctx.globalCompositeOperation = "multiply";
+  ctx.fillStyle = grad;
+  ctx.fillRect(0, 0, W, H);
+  ctx.restore();
+}
+
+export function renderPoster(canvas, { template, name, quote, photoImg, bgMode = "circle" }) {
+  const ctx = canvas.getContext("2d");
+  canvas.width = W;
+  canvas.height = H;
+
+  const usePhotoBg = bgMode === "photo" && !!photoImg;
+
+  if (usePhotoBg) {
+    drawPhotoBackground(ctx, template, photoImg);
+  } else {
+    drawGradientBackground(ctx, template);
+  }
+
+  // Bottom scrim so text stays legible over any motif or photo
+  const scrim = ctx.createLinearGradient(0, H * 0.5, 0, H);
   scrim.addColorStop(0, "rgba(16,26,48,0)");
-  scrim.addColorStop(1, "rgba(16,26,48,0.72)");
+  scrim.addColorStop(1, "rgba(16,26,48,0.75)");
   ctx.fillStyle = scrim;
-  ctx.fillRect(0, H * 0.55, W, H * 0.45);
+  ctx.fillRect(0, H * 0.5, W, H * 0.5);
 
-  // Photo (circular), if provided
-  if (photoImg) {
+  let quoteY = H * 0.68;
+
+  // Circular framed photo — only in circle mode
+  if (photoImg && !usePhotoBg) {
     const r = 130;
     const cx = W / 2;
     const cy = H * 0.62;
@@ -127,13 +156,14 @@ export function renderPoster(canvas, { template, name, quote, photoImg }) {
     ctx.lineWidth = 6;
     ctx.strokeStyle = "#EFE6D3";
     ctx.stroke();
+
+    quoteY = cy + 190;
   }
 
   // Quote
   ctx.fillStyle = "#EFE6D3";
   ctx.font = "600 44px Fraunces, serif";
   ctx.textAlign = "center";
-  const quoteY = photoImg ? H * 0.62 + 190 : H * 0.62;
   wrapText(ctx, quote, W / 2, quoteY, W - 160, 54);
 
   // Name
