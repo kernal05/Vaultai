@@ -1,7 +1,63 @@
+.app-shell {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
+
+.top-bar {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  padding: 14px 24px;
+  background: var(--indigo-deep);
+  border-bottom: 1px solid var(--border);
+}
+
+.top-bar-brand {
+  font-family: var(--font-display);
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--turmeric);
+}
+
+.view-tabs {
+  display: flex;
+  gap: 6px;
+  margin-right: auto;
+}
+
+.view-tab {
+  background: transparent;
+  border: none;
+  color: rgba(239, 230, 211, 0.65);
+  font-family: var(--font-ui);
+  font-size: 14px;
+  font-weight: 600;
+  padding: 8px 14px;
+  border-radius: 999px;
+}
+
+.view-tab.active {
+  background: var(--marigold);
+  color: var(--indigo-deep);
+}
+
+.theme-toggle {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--paper);
+  font-family: var(--font-ui);
+  font-size: 13px;
+  font-weight: 600;
+  padding: 8px 14px;
+  border-radius: 999px;
+}
+
 .studio {
+  flex: 1;
+  min-height: 0;
   display: grid;
   grid-template-columns: 220px 1fr 340px;
-  height: 100vh;
 }
 
 /* ---- Left rail ---- */
@@ -117,9 +173,9 @@
   font-family: var(--font-ui);
   font-size: 15px;
   padding: 10px 12px;
-  border: 1px solid rgba(27, 23, 18, 0.18);
+  border: 1px solid var(--input-border);
   border-radius: 6px;
-  background: #fff;
+  background: var(--input-bg);
   color: var(--ink);
 }
 

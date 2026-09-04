@@ -1,0 +1,94 @@
+.browse {
+  padding: 32px 40px 60px;
+  max-width: 1100px;
+  margin: 0 auto;
+  color: var(--ink);
+}
+
+.browse-tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+}
+
+.browse-tab {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--ink);
+  font-family: var(--font-ui);
+  font-size: 14px;
+  font-weight: 600;
+  padding: 9px 16px;
+  border-radius: 999px;
+}
+
+.browse-tab.active {
+  background: var(--marigold);
+  border-color: var(--marigold);
+  color: var(--indigo-deep);
+}
+
+.browse-title {
+  font-family: var(--font-display);
+  font-size: 32px;
+  margin: 0 0 24px;
+}
+
+.browse-loading {
+  font-family: var(--font-ui);
+  opacity: 0.7;
+  padding: 40px 0;
+}
+
+.browse-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 20px;
+}
+
+.quote-card {
+  border-radius: 12px;
+  padding: 24px 20px;
+  min-height: 180px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.25);
+}
+
+.quote-text {
+  font-family: var(--font-display);
+  font-size: 19px;
+  line-height: 1.4;
+  color: #1b1712;
+  margin: 0 0 16px;
+}
+
+.quote-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.quote-actions button {
+  flex: 1;
+  background: rgba(27, 23, 18, 0.12);
+  border: none;
+  border-radius: 6px;
+  padding: 8px 0;
+  font-size: 13px;
+  font-weight: 600;
+  color: #1b1712;
+}
+
+.quote-actions button:hover {
+  background: rgba(27, 23, 18, 0.22);
+}
+
+.hidden-canvas {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+}

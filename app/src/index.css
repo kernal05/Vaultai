@@ -4,12 +4,25 @@
   --marigold: #e8a23d;
   --turmeric: #f2c14e;
   --maroon: #7a2438;
+
   --paper: #efe6d3;
   --ink: #1b1712;
   --ink-soft: #4a4339;
+  --input-bg: #ffffff;
+  --input-border: rgba(27, 23, 18, 0.18);
+  --border: rgba(239, 230, 211, 0.12);
 
   --font-display: "Fraunces", serif;
   --font-ui: "Inter", system-ui, sans-serif;
+}
+
+[data-theme="dark"] {
+  --paper: #16101f;
+  --ink: #efe6d3;
+  --ink-soft: rgba(239, 230, 211, 0.65);
+  --input-bg: #201a2c;
+  --input-border: rgba(239, 230, 211, 0.2);
+  --border: rgba(239, 230, 211, 0.15);
 }
 
 * { box-sizing: border-box; }
@@ -24,6 +37,7 @@ body {
   background: var(--indigo-deep);
   color: var(--paper);
   -webkit-font-smoothing: antialiased;
+  transition: background 0.2s ease, color 0.2s ease;
 }
 
 button {

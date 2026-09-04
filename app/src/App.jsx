@@ -1,9 +1,18 @@
 import React, { useEffect, useRef, useState, useCallback } from "react";
 import { CATEGORIES } from "./templates.js";
 import { renderPoster } from "./canvasRenderer.js";
+import BrowseView from "./BrowseView.jsx";
 import "./App.css";
 
 export default function App() {
+  const [view, setView] = useState("create");
+  const [theme, setTheme] = useState(() => localStorage.getItem("vaultai-theme") || "light");
+
+  useEffect(() => {
+    document.documentElement.dataset.theme = theme;
+    localStorage.setItem("vaultai-theme", theme);
+  }, [theme]);
+
   const [categoryId, setCategoryId] = useState(CATEGORIES[0].id);
   const category = CATEGORIES.find((c) => c.id === categoryId);
 
@@ -68,87 +77,119 @@ export default function App() {
   }
 
   return (
-    <div className="studio">
-      <aside className="rail">
-        <div className="rail-brand">VaultAI</div>
-        <nav>
-          {CATEGORIES.map((c) => (
-            <button
-              key={c.id}
-              className={`rail-item ${c.id === categoryId ? "active" : ""}`}
-              onClick={() => setCategoryId(c.id)}
-            >
-              {c.label}
-            </button>
-          ))}
+    <div className="app-shell">
+      <header className="top-bar">
+        <span className="top-bar-brand">VaultAI</span>
+
+        <nav className="view-tabs">
+          <button
+            className={`view-tab ${view === "create" ? "active" : ""}`}
+            onClick={() => setView("create")}
+          >
+            Create
+          </button>
+          <button
+            className={`view-tab ${view === "browse" ? "active" : ""}`}
+            onClick={() => setView("browse")}
+          >
+            Browse
+          </button>
         </nav>
-      </aside>
 
-      <main className="stage">
-        <canvas ref={canvasRef} className="poster-canvas" />
-      </main>
-
-      <aside className="panel">
-        <h1 className="panel-title">{category.label}</h1>
-
-        <section className="panel-section">
-          <span className="panel-label">Template</span>
-          <div className="swatches">
-            {category.templates.map((t) => (
-              <button
-                key={t.id}
-                className={`swatch ${t.id === templateId ? "active" : ""}`}
-                style={{
-                  background: `linear-gradient(135deg, ${t.from}, ${t.to})`,
-                }}
-                onClick={() => setTemplateId(t.id)}
-                aria-label={`Template ${t.id}`}
-              />
-            ))}
-          </div>
-        </section>
-
-        <section className="panel-section">
-          <span className="panel-label">Your photo</span>
-          <button className="btn-secondary" onClick={() => fileInputRef.current?.click()}>
-            {photoImg ? "Change photo" : "Upload photo"}
-          </button>
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept="image/*"
-            hidden
-            onChange={handlePhoto}
-          />
-        </section>
-
-        <section className="panel-section">
-          <span className="panel-label">Name</span>
-          <input
-            className="text-input"
-            placeholder="Your name"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-          />
-        </section>
-
-        <section className="panel-section">
-          <span className="panel-label">Message</span>
-          <textarea
-            className="text-input textarea"
-            value={quote}
-            onChange={(e) => setQuote(e.target.value)}
-            rows={4}
-          />
-          <button className="btn-ghost" onClick={handleAiCaption} disabled={aiLoading}>
-            {aiLoading ? "Thinking…" : "✦ Suggest with AI"}
-          </button>
-        </section>
-
-        <button className="btn-primary" onClick={handleDownload}>
-          Download poster
+        <button
+          className="theme-toggle"
+          onClick={() => setTheme(theme === "light" ? "dark" : "light")}
+          aria-label="Toggle dark mode"
+        >
+          {theme === "light" ? "🌙 Dark" : "☀️ Light"}
         </button>
-      </aside>
+      </header>
+
+      {view === "create" ? (
+        <div className="studio">
+          <aside className="rail">
+            <nav>
+              {CATEGORIES.map((c) => (
+                <button
+                  key={c.id}
+                  className={`rail-item ${c.id === categoryId ? "active" : ""}`}
+                  onClick={() => setCategoryId(c.id)}
+                >
+                  {c.label}
+                </button>
+              ))}
+            </nav>
+          </aside>
+
+          <main className="stage">
+            <canvas ref={canvasRef} className="poster-canvas" />
+          </main>
+
+          <aside className="panel">
+            <h1 className="panel-title">{category.label}</h1>
+
+            <section className="panel-section">
+              <span className="panel-label">Template</span>
+              <div className="swatches">
+                {category.templates.map((t) => (
+                  <button
+                    key={t.id}
+                    className={`swatch ${t.id === templateId ? "active" : ""}`}
+                    style={{
+                      background: `linear-gradient(135deg, ${t.from}, ${t.to})`,
+                    }}
+                    onClick={() => setTemplateId(t.id)}
+                    aria-label={`Template ${t.id}`}
+                  />
+                ))}
+              </div>
+            </section>
+
+            <section className="panel-section">
+              <span className="panel-label">Your photo</span>
+              <button className="btn-secondary" onClick={() => fileInputRef.current?.click()}>
+                {photoImg ? "Change photo" : "Upload photo"}
+              </button>
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                hidden
+                onChange={handlePhoto}
+              />
+            </section>
+
+            <section className="panel-section">
+              <span className="panel-label">Name</span>
+              <input
+                className="text-input"
+                placeholder="Your name"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+              />
+            </section>
+
+            <section className="panel-section">
+              <span className="panel-label">Message</span>
+              <textarea
+                className="text-input textarea"
+                value={quote}
+                onChange={(e) => setQuote(e.target.value)}
+                rows={4}
+              />
+              <button className="btn-ghost" onClick={handleAiCaption} disabled={aiLoading}>
+                {aiLoading ? "Thinking…" : "✦ Suggest with AI"}
+              </button>
+            </section>
+
+            <button className="btn-primary" onClick={handleDownload}>
+              Download poster
+            </button>
+          </aside>
+        </div>
+      ) : (
+        <BrowseView categories={CATEGORIES} />
+      )}
     </div>
   );
 }
