@@ -10,7 +10,7 @@
   gap: 24px;
   padding: 14px 24px;
   background: var(--indigo-deep);
-  border-bottom: 1px solid var(--border);
+  border-bottom: 1px solid var(--chrome-border);
 }
 
 .top-bar-brand {
@@ -29,7 +29,7 @@
 .view-tab {
   background: transparent;
   border: none;
-  color: rgba(239, 230, 211, 0.65);
+  color: var(--chrome-fg-muted);
   font-family: var(--font-ui);
   font-size: 14px;
   font-weight: 600;
@@ -39,13 +39,13 @@
 
 .view-tab.active {
   background: var(--marigold);
-  color: var(--indigo-deep);
+  color: var(--on-accent);
 }
 
 .theme-toggle {
   background: transparent;
-  border: 1px solid var(--border);
-  color: var(--paper);
+  border: 1px solid var(--chrome-border);
+  color: var(--chrome-fg);
   font-family: var(--font-ui);
   font-size: 13px;
   font-weight: 600;
@@ -60,21 +60,12 @@
   grid-template-columns: 220px 1fr 340px;
 }
 
-/* ---- Left rail ---- */
 .rail {
   background: var(--indigo);
   padding: 28px 16px;
   display: flex;
   flex-direction: column;
   gap: 24px;
-}
-
-.rail-brand {
-  font-family: var(--font-display);
-  font-size: 22px;
-  font-weight: 600;
-  color: var(--turmeric);
-  padding: 0 8px;
 }
 
 .rail nav {
@@ -87,7 +78,7 @@
   text-align: left;
   background: transparent;
   border: none;
-  color: rgba(239, 230, 211, 0.75);
+  color: var(--chrome-fg-muted);
   font-family: var(--font-ui);
   font-size: 15px;
   padding: 11px 12px;
@@ -97,16 +88,15 @@
 
 .rail-item:hover {
   background: rgba(239, 230, 211, 0.08);
-  color: var(--paper);
+  color: var(--chrome-fg);
 }
 
 .rail-item.active {
   background: var(--marigold);
-  color: var(--ink);
+  color: var(--on-accent);
   font-weight: 600;
 }
 
-/* ---- Center stage ---- */
 .stage {
   background: var(--indigo-deep);
   display: flex;
@@ -122,14 +112,14 @@
   box-shadow: 0 24px 60px rgba(0, 0, 0, 0.45);
 }
 
-/* ---- Right panel ---- */
 .panel {
-  background: var(--paper);
-  color: var(--ink);
+  background: var(--surface-bg);
+  color: var(--surface-fg);
   padding: 32px 28px;
   overflow-y: auto;
   display: flex;
   flex-direction: column;
+  transition: background 0.2s ease, color 0.2s ease;
 }
 
 .panel-title {
@@ -146,7 +136,7 @@
 .panel-label {
   display: block;
   font-size: 13px;
-  color: var(--ink-soft);
+  color: var(--surface-fg-soft);
   margin-bottom: 8px;
   font-weight: 500;
 }
@@ -173,10 +163,10 @@
   font-family: var(--font-ui);
   font-size: 15px;
   padding: 10px 12px;
-  border: 1px solid var(--input-border);
+  border: 1px solid var(--surface-input-border);
   border-radius: 6px;
-  background: var(--input-bg);
-  color: var(--ink);
+  background: var(--surface-input-bg);
+  color: var(--surface-fg);
 }
 
 .textarea {
@@ -197,19 +187,19 @@
 
 .btn-primary {
   background: var(--maroon);
-  color: var(--paper);
+  color: var(--chrome-fg);
   margin-top: auto;
 }
 
 .btn-secondary {
   background: var(--indigo);
-  color: var(--paper);
+  color: var(--chrome-fg);
 }
 
 .btn-ghost {
   background: transparent;
-  color: var(--maroon);
-  border: 1px solid var(--maroon);
+  color: var(--accent-fg);
+  border: 1px solid var(--accent-fg);
   margin-top: 8px;
 }
 
