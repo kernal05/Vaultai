@@ -2,6 +2,49 @@ import React, { useState, useEffect, useRef, useCallback } from "react";
 import { renderPoster } from "./canvasRenderer.js";
 import "./BrowseView.css";
 
+// Relative luminance -> pick readable text color per card, since template
+// gradients range from very light (business b3) to very dark (business b1/b2).
+function luminance(hex) {
+  const c = hex.replace("#", "");
+  const [r, g, b] = [0, 2, 4].map((i) => parseInt(c.substr(i, 2), 16) / 255);
+  const lin = (v) => (v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4));
+  return 0.2126 * lin(r) + 0.7152 * lin(g) + 0.0722 * lin(b);
+}
+
+function cardTextColor(template) {
+  const avg = (luminance(template.from) + luminance(template.to)) / 2;
+  return avg > 0.4 ? "#1b1712" : "#f5efe2";
+}
+
+// Clipboard/Share APIs require a secure context (HTTPS or localhost).
+// This app is currently served over plain HTTP on an IP, so both fall back
+// to the older execCommand method, which still works without HTTPS.
+async function copyText(text) {
+  if (navigator.clipboard && window.isSecureContext) {
+    try {
+      await navigator.clipboard.writeText(text);
+      return true;
+    } catch (e) {
+      // fall through to legacy method
+    }
+  }
+  const ta = document.createElement("textarea");
+  ta.value = text;
+  ta.style.position = "fixed";
+  ta.style.left = "-9999px";
+  document.body.appendChild(ta);
+  ta.focus();
+  ta.select();
+  let ok = false;
+  try {
+    ok = document.execCommand("copy");
+  } catch (e) {
+    ok = false;
+  }
+  document.body.removeChild(ta);
+  return ok;
+}
+
 export default function BrowseView({ categories }) {
   const [categoryId, setCategoryId] = useState(categories[0].id);
   const category = categories.find((c) => c.id === categoryId);
@@ -38,11 +81,14 @@ export default function BrowseView({ categories }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [categoryId]);
 
-  function handleCopy(text, idx) {
-    navigator.clipboard.writeText(text).then(() => {
+  async function handleCopy(text, idx) {
+    const ok = await copyText(text);
+    if (ok) {
       setCopiedIndex(idx);
       setTimeout(() => setCopiedIndex(null), 1500);
-    });
+    } else {
+      alert("Couldn't copy automatically — select and copy the text manually.");
+    }
   }
 
   function handleDownload(text, idx) {
@@ -56,16 +102,16 @@ export default function BrowseView({ categories }) {
   }
 
   async function handleShare(text) {
-    if (navigator.share) {
+    if (navigator.share && window.isSecureContext) {
       try {
         await navigator.share({ text, title: "VaultAI" });
+        return;
       } catch (err) {
-        // user cancelled — no-op
+        return; // user cancelled — no-op
       }
-    } else {
-      navigator.clipboard.writeText(text);
-      alert("Copied — share it anywhere you like.");
     }
+    const ok = await copyText(text);
+    alert(ok ? "Copied — share it anywhere you like." : "Couldn't copy automatically — select and copy the text manually.");
   }
 
   return (
@@ -90,11 +136,15 @@ export default function BrowseView({ categories }) {
         <div className="browse-grid">
           {quotes.map((q, idx) => {
             const t = category.templates[idx % category.templates.length];
+            const fg = cardTextColor(t);
             return (
               <article
                 key={idx}
                 className="quote-card"
-                style={{ background: `linear-gradient(135deg, ${t.from}, ${t.to})` }}
+                style={{
+                  background: `linear-gradient(135deg, ${t.from}, ${t.to})`,
+                  "--card-fg": fg,
+                }}
               >
                 <p className="quote-text">{q}</p>
                 <div className="quote-actions">

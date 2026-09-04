@@ -15,7 +15,8 @@
 .browse-tab {
   background: transparent;
   border: 1px solid var(--border);
-  color: var(--ink);
+  color: var(--paper);
+  opacity: 0.75;
   font-family: var(--font-ui);
   font-size: 14px;
   font-weight: 600;
@@ -23,20 +24,27 @@
   border-radius: 999px;
 }
 
+.browse-tab:hover {
+  opacity: 1;
+}
+
 .browse-tab.active {
   background: var(--marigold);
   border-color: var(--marigold);
   color: var(--indigo-deep);
+  opacity: 1;
 }
 
 .browse-title {
   font-family: var(--font-display);
   font-size: 32px;
   margin: 0 0 24px;
+  color: var(--paper);
 }
 
 .browse-loading {
   font-family: var(--font-ui);
+  color: var(--paper);
   opacity: 0.7;
   padding: 40px 0;
 }
@@ -55,13 +63,14 @@
   flex-direction: column;
   justify-content: space-between;
   box-shadow: 0 12px 30px rgba(0, 0, 0, 0.25);
+  color: var(--card-fg);
 }
 
 .quote-text {
   font-family: var(--font-display);
   font-size: 19px;
   line-height: 1.4;
-  color: #1b1712;
+  color: var(--card-fg);
   margin: 0 0 16px;
 }
 
@@ -72,17 +81,17 @@
 
 .quote-actions button {
   flex: 1;
-  background: rgba(27, 23, 18, 0.12);
+  background: color-mix(in srgb, var(--card-fg) 18%, transparent);
   border: none;
   border-radius: 6px;
   padding: 8px 0;
   font-size: 13px;
   font-weight: 600;
-  color: #1b1712;
+  color: var(--card-fg);
 }
 
 .quote-actions button:hover {
-  background: rgba(27, 23, 18, 0.22);
+  background: color-mix(in srgb, var(--card-fg) 30%, transparent);
 }
 
 .hidden-canvas {
