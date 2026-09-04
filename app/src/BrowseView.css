@@ -2,7 +2,7 @@
   padding: 32px 40px 60px;
   max-width: 1100px;
   margin: 0 auto;
-  color: var(--ink);
+  color: #f5efe2; /* fixed: this page's backdrop is always dark, independent of the light/dark toggle */
 }
 
 .browse-tabs {
@@ -14,8 +14,8 @@
 
 .browse-tab {
   background: transparent;
-  border: 1px solid var(--border);
-  color: var(--paper);
+  border: 1px solid rgba(245, 239, 226, 0.3);
+  color: #f5efe2;
   opacity: 0.75;
   font-family: var(--font-ui);
   font-size: 14px;
@@ -39,12 +39,12 @@
   font-family: var(--font-display);
   font-size: 32px;
   margin: 0 0 24px;
-  color: var(--paper);
+  color: #f5efe2;
 }
 
 .browse-loading {
   font-family: var(--font-ui);
-  color: var(--paper);
+  color: #f5efe2;
   opacity: 0.7;
   padding: 40px 0;
 }
