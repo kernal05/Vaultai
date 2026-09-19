@@ -100,7 +100,6 @@ Add screenshots here: the Argo CD application tree, the self-heal test, and PR #
 - **No per-preview observability.** Logs and metrics are not labelled or dashboarded per PR.
 - **Closing a PR was tested, merging was not.** Both remove the PR from the generator's list, so the teardown mechanism is the same.
 - **PR detection polls about every 2 minutes.** A GitHub webhook to Argo CD would make it near-instant.
-- **App-of-Apps** is not used. The dev Application and the ApplicationSet are applied directly by script.
 
 ## Teardown
 

@@ -21,7 +21,7 @@ This repo uses automated with both on (`{"automated":{"prune":true,"selfHeal":tr
 
 **Health checks.** Argo CD has built-in health logic for standard Kubernetes resources (a Deployment is healthy when its rollout completes and pods pass readiness probes). Custom resources can get custom Lua health checks. The chart's `api.healthPath: /healthz` feeds the readiness probe, so a broken API keeps the app from reporting Healthy.
 
-**App-of-Apps.** A root `Application` whose source is a directory of other `Application` manifests. Applying one root creates and manages all the children, which gives one bootstrap step and a Git-tracked list of everything Argo CD runs. **Not built here:** the dev Application and the ApplicationSet are applied directly by `scripts/24-argocd-apply.sh`.
+**App-of-Apps.** A root `Application` whose source is a directory of other `Application` manifests. Applying one root creates and manages all the children, which gives one bootstrap step and a Git-tracked list of everything Argo CD runs. **Built here:** `gitops/root.yaml` is a root Application over `gitops/`, so the dev Application, ApplicationSet and AppProject are all managed from Git.
 ApplicationSet is the alternative for generating many similar Applications from a template, and the two are often combined (App-of-Apps for platform components, ApplicationSets for per-environment or per-PR apps).
 
 ## ApplicationSet and the Pull Request generator
@@ -66,7 +66,7 @@ Detection works by polling (about 2 minutes here). The default requeue interval 
 | Per-PR isolated namespace with its own postgres and gateway | Built and tested |
 | AppProject scoping previews | Built (`gitops/appproject-previews.yaml`) |
 | Manual sync policy | Not demonstrated |
-| App-of-Apps | Not built |
+| App-of-Apps (root Application over gitops/) | Built and tested |
 | External Secrets Operator | Not built (design described above) |
 | Per-preview observability | Not built |
 | Per-PR image tags from CI | Not built (images are `:local`, so previews don't reflect branch code) |
