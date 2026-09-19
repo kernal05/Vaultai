@@ -91,7 +91,11 @@ Then open each in its own terminal (they are `kubectl port-forward` tunnels):
 
 ## Screenshots
 
-Add screenshots here: the Argo CD application tree, the self-heal test, and PR #1 with its preview namespace.
+![Argo CD App-of-Apps tree: root owns vaultai-dev, the vaultai-pr-previews ApplicationSet and the vaultai-previews AppProject](screenshots/argocd-app-of-apps-tree.png)
+
+![Argo CD applications: root, vaultai-dev and vaultai-pr-1](screenshots/argocd-apps.png)
+
+`vaultai-pr-1` is pinned to the PR head commit; `vaultai-dev` and `root` track `main`.
 
 ## Known limitations and next steps
 
