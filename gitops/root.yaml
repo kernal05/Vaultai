@@ -1,0 +1,30 @@
+# App-of-Apps root. One `kubectl apply -f gitops/root.yaml` bootstraps everything else in this
+# directory (the dev Application, the PR-preview ApplicationSet and the AppProject).
+# Adding a new *.yaml Application to gitops/ and pushing to main is enough for Argo CD to pick it up.
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: root
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/kernal05/Vaultai.git
+    targetRevision: main
+    path: gitops
+    directory:
+      recurse: false
+      exclude: 'root.yaml'   # don't let the root manage itself
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: argocd        # children are Argo CD resources, which live in the argocd namespace
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    retry:                   # the AppProject may not exist yet when the ApplicationSet syncs
+      limit: 5
+      backoff:
+        duration: 10s
+        factor: 2
+        maxDuration: 2m
