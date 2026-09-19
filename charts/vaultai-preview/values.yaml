@@ -21,7 +21,7 @@ frontend:
 
 api:
   port: 8000        # container port of the FastAPI app
-  replicas: 2
+  replicas: 1
   healthPath: /healthz
   databaseUrlEnvName: DATABASE_URL   # the env var your API reads (check docker-compose.yml)
   databaseUrlScheme: postgresql      # or postgresql+asyncpg, etc.
