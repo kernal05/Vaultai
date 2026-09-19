@@ -1,0 +1,19 @@
+# AppProject = the guardrail. Preview apps can only pull from THIS repo and
+# only deploy into vaultai-pr-* / vaultai-dev namespaces. Nothing else on the cluster is reachable.
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: vaultai-previews
+  namespace: argocd
+spec:
+  description: VaultAI dev + per-PR preview environments
+  sourceRepos:
+    - https://github.com/kernal05/Vaultai.git
+  destinations:
+    - server: https://kubernetes.default.svc
+      namespace: 'vaultai-pr-*'
+    - server: https://kubernetes.default.svc
+      namespace: vaultai-dev
+  clusterResourceWhitelist:
+    - group: ''
+      kind: Namespace

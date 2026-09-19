@@ -1,0 +1,15 @@
+{{- if .Values.quota.enabled }}
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: preview-quota
+  labels:
+    {{- include "vp.labels" . | nindent 4 }}
+spec:
+  hard:
+    requests.cpu: "600m"
+    requests.memory: 1Gi
+    limits.cpu: "2"
+    limits.memory: 1536Mi
+    pods: "10"
+{{- end }}

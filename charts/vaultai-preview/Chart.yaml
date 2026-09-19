@@ -1,0 +1,6 @@
+apiVersion: v2
+name: vaultai-preview
+description: Per-PR / per-env preview stack for VaultAI (frontend + api + throwaway postgres)
+type: application
+version: 0.1.0
+appVersion: "preview"

@@ -1,0 +1,37 @@
+# A single, hand-written Application: use it to learn sync / health / drift / self-heal
+# BEFORE moving on to the ApplicationSet.
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: vaultai-dev
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: vaultai-previews
+  source:
+    repoURL: https://github.com/kernal05/Vaultai.git
+    targetRevision: main
+    path: charts/vaultai-preview
+    helm:
+      parameters:
+        - name: preview.prNumber
+          value: dev
+          forceString: true
+        - name: preview.branch
+          value: main
+          forceString: true
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: vaultai-dev
+  ignoreDifferences:
+    - kind: Secret
+      name: vaultai-db
+      jsonPointers:
+        - /data
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - RespectIgnoreDifferences=true

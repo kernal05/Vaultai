@@ -1,0 +1,37 @@
+# Values that Argo CD overrides per environment (see gitops/*.yaml)
+preview:
+  prNumber: "dev"
+  branch: main
+  commit: local
+
+# Images are the ones built INTO minikube by scripts/10-minikube-build.sh.
+# Run ./scripts/20-preflight.sh to see the exact names/tags and fix these if they differ.
+images:
+  pullPolicy: IfNotPresent
+  frontend:
+    repository: ghcr.io/kernal05/vaultai-frontend
+    tag: local
+  api:
+    repository: ghcr.io/kernal05/vaultai-api
+    tag: local
+
+frontend:
+  port: 80          # container port of the nginx frontend
+  replicas: 1
+
+api:
+  port: 8000        # container port of the FastAPI app
+  replicas: 1
+  healthPath: /healthz
+  databaseUrlEnvName: DATABASE_URL   # the env var your API reads (check docker-compose.yml)
+  databaseUrlScheme: postgresql      # or postgresql+asyncpg, etc.
+  env: {}                            # any extra env vars, e.g. { ENV: preview }
+
+postgres:
+  image: postgres:16-alpine
+  db: vaultai
+  user: vaultai
+
+# Per-namespace cost guard: one preview can never eat the whole cluster
+quota:
+  enabled: true

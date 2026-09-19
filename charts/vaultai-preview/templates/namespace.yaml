@@ -1,0 +1,11 @@
+# The namespace is part of the app on purpose: when the PR closes and Argo deletes
+# the Application, the namespace (and everything in it) goes with it.
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: {{ .Release.Namespace }}
+  labels:
+    {{- include "vp.labels" . | nindent 4 }}
+  annotations:
+    argocd.argoproj.io/sync-wave: "-1"
+    vaultai.dev/branch: {{ .Values.preview.branch | quote }}

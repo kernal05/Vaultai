@@ -1,0 +1,65 @@
+# One ApplicationSet -> one Application (and one namespace) per open GitHub PR.
+# PR closed/merged -> generator stops returning it -> Application deleted -> finalizer
+# cascades -> namespace + everything in it is gone.
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: vaultai-pr-previews
+  namespace: argocd
+spec:
+  goTemplate: true
+  goTemplateOptions: ["missingkey=error"]
+  generators:
+    - pullRequest:
+        github:
+          owner: kernal05
+          repo: Vaultai
+          tokenRef:
+            secretName: github-token   # created by scripts/23-argocd-github-token.sh
+            key: token
+          # Cost guard for a small laptop: uncomment to only build previews for PRs
+          # that carry the "preview" label.
+          # labels:
+          #   - preview
+        # Polling fallback. In real prod you add a GitHub webhook to the
+        # applicationset-controller so previews appear in seconds, not minutes.
+        requeueAfterSeconds: 120
+  template:
+    metadata:
+      name: 'vaultai-pr-{{.number}}'
+      labels:
+        vaultai.dev/pr: '{{.number}}'
+        app.kubernetes.io/part-of: vaultai-previews
+      finalizers:
+        - resources-finalizer.argocd.argoproj.io
+    spec:
+      project: vaultai-previews
+      source:
+        repoURL: https://github.com/kernal05/Vaultai.git
+        targetRevision: '{{.head_sha}}'      # chart is read from the PR's own commit
+        path: charts/vaultai-preview
+        helm:
+          parameters:
+            - name: preview.prNumber
+              value: '{{.number}}'
+              forceString: true
+            - name: preview.branch
+              value: '{{.branch_slug}}'
+              forceString: true
+            - name: preview.commit
+              value: '{{.head_short_sha}}'
+              forceString: true
+      destination:
+        server: https://kubernetes.default.svc
+        namespace: 'vaultai-pr-{{.number}}'
+      ignoreDifferences:
+        - kind: Secret
+          name: vaultai-db
+          jsonPointers:
+            - /data
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
+        syncOptions:
+          - RespectIgnoreDifferences=true
