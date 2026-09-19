@@ -173,3 +173,12 @@ Multibranch Pipeline pointed at this repo, using this `Jenkinsfile`.
   gitignored and secrets are never hardcoded.
 - Database is not exposed on any host port — only reachable from `vaultai_net`.
 - Don't reuse Crafto's actual template assets, logo, or name.
+
+## Kubernetes + GitOps (Argo CD) with per-PR preview environments
+
+Besides the Docker Compose + Jenkins deployment above, this repo also deploys to Kubernetes (minikube) with **Argo CD**. Git is the source of truth for the cluster, and an **ApplicationSet with the Pull Request generator** creates an isolated preview environment for every open PR and deletes it when the PR closes.
+
+- Helm chart: `charts/vaultai-preview/`
+- Argo CD manifests: `gitops/`
+- Full write-up, architecture diagram, and verified results: [docs/GITOPS.md](docs/GITOPS.md)
+- Study notes and design answer: [docs/day1-argocd-preview-environments.md](docs/day1-argocd-preview-environments.md)
