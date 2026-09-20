@@ -3,4 +3,4 @@ kind: ConfigMap
 metadata:
   name: demo-config
 data:
-  message: "version 1"
+  message: "version 2"
