@@ -1,0 +1,7 @@
+# Stand-in for a real secrets manager (Vault / AWS Secrets Manager). Holds the source secret.
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: vault-source
+  annotations:
+    argocd.argoproj.io/sync-options: Prune=false
