@@ -88,6 +88,10 @@ Then open each in its own terminal (they are `kubectl port-forward` tunnels):
 | Revert the change through Git | Extra pod removed automatically (prune) |
 | Open a pull request | `vaultai-pr-1` namespace with its own 4 pods created |
 | Close the pull request | Namespace and all its resources deleted automatically |
+| Change the page title on a PR branch, build with `11-build-branch.sh`, open the PR | Preview showed the new title, dev did not (per-PR image tags) |
+| `kubectl get pods -A -l app.kubernetes.io/part-of=vaultai -L vaultai.dev/pr` | Pods of every environment listed with their PR label |
+| Change the source secret and wait one refresh interval | Target secret updated without touching it (External Secrets rotation) |
+| Manual-sync app: change Git, then edit the live object by hand | `OutOfSync` shown, nothing applied or reverted until Sync is clicked |
 
 ## Screenshots
 
@@ -99,9 +103,9 @@ Then open each in its own terminal (they are `kubectl port-forward` tunnels):
 
 ## Known limitations and next steps
 
-- **Previews use the `:local` image tag.** All environments run the same images built inside minikube, so a preview does not reflect code changes on the PR branch. A production setup builds one image per commit in CI, pushes it to a registry, and passes the tag (for example the PR head SHA) into the chart through the ApplicationSet template.
+- **Image build is a local script, not CI.** `scripts/11-build-branch.sh` builds images inside minikube tagged with the commit SHA, and the ApplicationSet passes `head_short_sha` to the chart, so a preview runs exactly its PR commit. Build before you push, or the pods sit in `ImagePullBackOff`. A production setup builds and pushes the same SHA-tagged images to a registry from CI.
 - **Secrets come from a stand-in store.** External Secrets Operator is installed and each environment pulls its DB password from a `ClusterSecretStore` (Kubernetes provider reading the `vault-source` namespace), so no password is in Git. In production the store would point at Vault or AWS Secrets Manager. All previews currently share one source password.
-- **No per-preview observability.** Logs and metrics are not labelled or dashboarded per PR.
+- **Observability is labels and metrics only.** Every pod carries `vaultai.dev/pr`, so logs and resource usage filter per PR (`kubectl logs -l vaultai.dev/pr=2`, `kubectl top pods -A -l vaultai.dev/pr=2`, with metrics-server enabled). There are no Prometheus or Grafana dashboards, which would not fit a 4.8 GB minikube.
 - **Closing a PR was tested, merging was not.** Both remove the PR from the generator's list, so the teardown mechanism is the same.
 - **PR detection polls about every 2 minutes.** A GitHub webhook to Argo CD would make it near-instant.
 

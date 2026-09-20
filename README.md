@@ -182,3 +182,4 @@ Besides the Docker Compose + Jenkins deployment above, this repo also deploys to
 - Argo CD manifests: `gitops/`
 - Full write-up, architecture diagram, and verified results: [docs/GITOPS.md](docs/GITOPS.md)
 - Study notes and design answer: [docs/day1-argocd-preview-environments.md](docs/day1-argocd-preview-environments.md)
+- Troubleshooting log and runbook: [docs/TROUBLESHOOTING.md](docs/TROUBLESHOOTING.md)
