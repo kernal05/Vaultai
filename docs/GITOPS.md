@@ -100,7 +100,7 @@ Then open each in its own terminal (they are `kubectl port-forward` tunnels):
 ## Known limitations and next steps
 
 - **Previews use the `:local` image tag.** All environments run the same images built inside minikube, so a preview does not reflect code changes on the PR branch. A production setup builds one image per commit in CI, pushes it to a registry, and passes the tag (for example the PR head SHA) into the chart through the ApplicationSet template.
-- **No External Secrets Operator yet.** Secrets are not synced from an external store such as Vault or AWS Secrets Manager. That would be the way to give each preview its own credentials without putting them in Git.
+- **Secrets come from a stand-in store.** External Secrets Operator is installed and each environment pulls its DB password from a `ClusterSecretStore` (Kubernetes provider reading the `vault-source` namespace), so no password is in Git. In production the store would point at Vault or AWS Secrets Manager. All previews currently share one source password.
 - **No per-preview observability.** Logs and metrics are not labelled or dashboarded per PR.
 - **Closing a PR was tested, merging was not.** Both remove the PR from the generator's list, so the teardown mechanism is the same.
 - **PR detection polls about every 2 minutes.** A GitHub webhook to Argo CD would make it near-instant.

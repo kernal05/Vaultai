@@ -67,7 +67,7 @@ Detection works by polling (about 2 minutes here). The default requeue interval 
 | AppProject scoping previews | Built (`gitops/appproject-previews.yaml`) |
 | Manual sync policy | Demonstrated (`demo/manual-sync`) |
 | App-of-Apps (root Application over gitops/) | Built and tested |
-| External Secrets Operator | Not built (design described above) |
+| External Secrets Operator (ClusterSecretStore + ExternalSecret per environment) | Built and tested (Kubernetes provider as a stand-in for Vault) |
 | Per-preview observability | Not built |
 | Per-PR image tags from CI | Not built (images are `:local`, so previews don't reflect branch code) |
 | GitHub webhook instead of polling | Not built |
