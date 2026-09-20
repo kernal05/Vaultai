@@ -1,0 +1,23 @@
+# Demo of a MANUAL sync policy. There is no `automated:` block, so Argo CD detects drift
+# (OutOfSync) but never applies or reverts anything until someone clicks Sync.
+# Not watched by the App-of-Apps root (it only reads gitops/), so apply it by hand:
+#   kubectl apply -f demo/manual-sync/application.yaml
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: manual-sync-demo
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io   # deleting the Application also deletes what it deployed
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/kernal05/Vaultai.git
+    targetRevision: main
+    path: demo/manual-sync/manifests
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: manual-sync-demo
+  syncPolicy:
+    syncOptions:
+      - CreateNamespace=true
