@@ -65,7 +65,7 @@ Detection works by polling (about 2 minutes here). The default requeue interval 
 | ApplicationSet + Pull Request generator | Built and tested (open PR creates namespace, close PR removes it) |
 | Per-PR isolated namespace with its own postgres and gateway | Built and tested |
 | AppProject scoping previews | Built (`gitops/appproject-previews.yaml`) |
-| Manual sync policy | Not demonstrated |
+| Manual sync policy | Demonstrated (`demo/manual-sync`) |
 | App-of-Apps (root Application over gitops/) | Built and tested |
 | External Secrets Operator | Not built (design described above) |
 | Per-preview observability | Not built |
