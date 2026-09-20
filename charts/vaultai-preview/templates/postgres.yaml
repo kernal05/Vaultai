@@ -16,6 +16,7 @@ spec:
     metadata:
       labels:
         app: postgres
+        {{- include "vp.podLabels" . | nindent 8 }}
     spec:
       automountServiceAccountToken: false
       containers:
