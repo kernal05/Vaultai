@@ -43,6 +43,12 @@ spec:
             - name: preview.prNumber
               value: '{{.number}}'
               forceString: true
+            - name: images.api.tag
+              value: '{{.head_short_sha}}'
+              forceString: true
+            - name: images.frontend.tag
+              value: '{{.head_short_sha}}'
+              forceString: true
             - name: preview.branch
               value: '{{.branch_slug}}'
               forceString: true
